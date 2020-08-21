@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosWithAuth from '../utils/axiosWithAuth'
+import axios from 'axios'
 
 import {useParams, useHistory} from 'react-router-dom'
 
@@ -8,12 +9,14 @@ const initialColor = {
   code: { hex: "" }
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ colors, updateColors, update, setUpdate }) => {
   console.log(colors);
+  console.log(colors[1], 'this is colors 1')
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  
 
-  const {id} = useParams()
+  // const {id} = useParams()
   const history = useHistory()
 
   const editColor = color => {
@@ -26,11 +29,12 @@ const ColorList = ({ colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
-    axios.put(`http://localhost:5000/api/colors/${id}`, colorToEdit)
+    axiosWithAuth()
+    .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
     .then(res => {
-        console.log(res, 'res in submit update form')
-      // props.setUpdate(!props.update)
-        history.push("/")
+        console.log(res, 'res in update color')
+      setUpdate(!update)
+        history.push("/protected")
     })
     .catch(error => {
         console.log(error, 'this is the error')
@@ -40,17 +44,13 @@ const ColorList = ({ colors, updateColors }) => {
   const deleteColor = color => {
     // make a delete request to delete this color
     // event.preventDefault()
-    axios
-    .delete(`http://localhost:5000/api/colors/${colorToEdit.id}`)
+    axiosWithAuth()
+    .delete(`/api/colors/${color.id}`)
     .then((res) => {
      
-      console.log(res, res.data, 'res and res.data in delete movie')
-      // props.setUpdate(!props.update)
-      history.push("/");
-      
-      // afternoon project
-      // server returns the id of the deleted item
-      // you will have to filter out that item from the item list
+      console.log(res, res.data, 'res and res.data in delete color')
+     setUpdate(!update)
+      history.push("/protected");
     })
     .catch((err) => console.log(err));
   };
